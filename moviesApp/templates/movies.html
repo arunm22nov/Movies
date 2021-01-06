@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<title>Movies Data</title> {% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/all.css' %}">
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Popper JS -->
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+
+
+</head>
+<body>
+	<script>
+	
+		function OnSearch(inputvalue) {
+
+			var input = $('#user_input').val();
+			var filter = $('#Company').val();
+
+			$.ajax({
+				url : "{% url 'get_response' %}",
+				data : {
+					'inputValue' : input,
+					'searchtype' : filter
+				},
+				 beforeSend: function(){
+				       $("#loder").show();
+				  },
+				  complete: function(){
+				      $("#loder").hide();
+				  },
+				
+				dataType : 'json',
+				success : function(data) {
+					var course = data["response"];
+					//alert(course);
+					var rows = '';
+					var th = '';
+					th = '<th>' + "ID" + '</th>';
+					th += '<th>' + "Name" + '</th>';
+					th += '<th>' + "Director" + '</th>';
+					th += '<th>' + "Popularity" + '</th>';
+					th += '<th>' + "Imdb Score" + '</th>';
+					th += '<th>' + "Genre" + '</th>';
+
+					rows += '<tr>' + th + '</tr>';
+					$.each(course, function(index, item) {
+						var row = '<tr>';
+						//alert(item["name"]);
+						row += '<td>' + index + '</td>';
+
+						row += '<td>' + item["name"] + '</td>';
+						row += '<td>' + item["director"] + '</td>';
+						row += '<td>' + item["popularity"] + '</td>';
+						row += '<td>' + item["imdb_score"] + '</td>';
+						var genre = "";
+						$.each(item["genre_m"], function(index, item) {
+
+							genre = genre.concat(item["genre_name"], ", ");
+						});
+						row += '<td>' + genre + '</td>';
+						rows += row + '<tr>';
+					});
+					$("#data_table").html(rows);
+
+				}
+			});
+
+		}
+		
+		
+		
+	</script>
+
+
+
+	<div class="container p-3 my-3">
+
+		<div class="p-3 my-3 bg-primary text-white text-center">
+			<h1>View Movies List</h1>
+
+		</div>
+		<div>
+
+			<div class='row'>
+
+
+				<div class="col-8">
+
+					<input type="search" placeholder="Search movies here..." name="search"
+						oninput="OnSearch(this)" class="example" id="user_input">
+					<input type="hidden" name="form_type" value="formOne">
+					
+
+				</div>
+
+				<div class="col-4">
+				
+				 <div class="row">
+				 
+				 <div class="col-3 align-baseline ">
+				 <a>Filter by:</a>
+				 
+				 </div>
+				 <div class="col-9">
+				 
+				 <div class="form-group">
+
+						<select id="Company"
+							class="selectpicker bg-primary text-white  form-control"
+							name="Company">
+							<option value="name">name</option>
+							<option value="director">director</option>
+							<option value="genre">genre</option>
+						</select>
+					</div>
+				 
+				 </div>
+				 
+				  
+				
+				
+					
+				 
+				  </div>
+				
+				
+				</div>
+
+			</div>
+
+
+
+
+		</div>
+
+		<div class="text-center" id="loder">
+			<div class="spinner-border" role="status">
+				<span class="sr-only">Loading...</span>
+			</div>
+		</div>
+		<table id="data_table" class="table table-striped">
+			<tr>
+				<th>ID</th>
+				<th>Name</th>
+				<th>Director</th>
+				<th>Popularity</th>
+				<th>Imdb Score</th>
+				<th>Genre</th>
+
+			</tr>
+			{% if movies_list %} {% for i in movies_list %}
+			<tr>
+				<td id="td">{{forloop.counter}}</td>
+				<td>{{i.name}}</td>
+				<td>{{i.director}}</td>
+				<td>{{i.popularity}}</td>
+				<td>{{i.imdb_score}}</td>
+				<td>{% for j in i.genre_m %} <a>{{j.genre_name}},</a> {% endfor %}
+
+				</td>
+			</tr>
+
+			{% endfor %} {% endif %}
+
+
+		</table>
+
+	</div>
+	<script>
+	 $("#loder").hide();
+</script>
+</body>
+</html>
